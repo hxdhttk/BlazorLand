@@ -1,0 +1,68 @@
+﻿@page "/fibs"
+
+<h1>Fibs</h1>
+
+<p>This component demonstrates fibs.</p>
+
+@if (fibs == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <button onclick="@GetFibs">Get fibs</button>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Index</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                var idx = 1;
+                foreach (var fib in fibs)
+                {
+                    <tr>
+                        <td>@(idx++)</td>
+                        <td>@fib</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
+
+@functions {
+    List<ulong> fibs;
+
+    ulong prev = 0, current = 1;
+
+    bool started = false;
+
+    protected override async Task OnInitAsync()
+    {
+        fibs = new List<ulong>();
+        await Task.CompletedTask;
+    }
+
+    private void GetFibs()
+    {
+        if (!started)
+        {
+            fibs.Add(current);
+
+            started = true;
+            return;
+        }
+
+        var newCurrent = prev + current;
+        prev = current;
+        current = newCurrent;
+
+        fibs.Add(newCurrent);
+    }
+}
+
+
