@@ -1,0 +1,112 @@
+﻿@page "/indexComp"
+
+@inject HttpClient Http
+
+@using System.Collections.Concurrent
+
+<h1>Index Comparison</h1>
+
+<p>This component demonstrates index comparison</p>
+
+@if (indexInfos == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Url</th>
+                <th>ContentLength</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                foreach (var indexInfo in indexInfos)
+                {
+                    <tr>
+                        <td>@indexInfo.Title</td>
+                        <td>@indexInfo.Url</td>
+                        <td>@indexInfo.ContentLength</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
+
+@functions {
+    static readonly (string title, string url)[] sites = new[]
+    {
+            ("Baidu", "https://api.ipify.org"),
+            ("Bing", "https://api.ipify.org?format=json"),
+            ("Google", "https://api.ipify.org?format=jsonp")
+    };
+
+    List<IndexInfo> indexInfos;
+
+    HttpClient client;
+
+    protected override async Task OnInitAsync()
+    {
+        client = Http;
+        indexInfos = (await GetInfos()).ToList();
+
+        await Task.CompletedTask;
+    }
+
+    private async Task<ConcurrentBag<IndexInfo>> GetInfos()
+    {
+        var tasks = new List<Task>();
+        var infos = new ConcurrentBag<IndexInfo>();
+
+        foreach (var (title, url) in sites)
+        {
+            var task = Task.Factory.StartNew(async () =>
+            {
+                try
+                {
+                    var requestMessage = new HttpRequestMessage();
+
+                    requestMessage.RequestUri = new Uri(url);
+                    requestMessage.Method = HttpMethod.Get;
+
+                    var responseMessage = await client.SendAsync(requestMessage);
+                    var response = await responseMessage.Content.ReadAsStringAsync();
+
+                    var indexInfo = new IndexInfo
+                    {
+                        Title = title,
+                        Url = url,
+                        ContentLength = response.Length
+                    };
+
+                    infos.Add(indexInfo);
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine(ex);
+                }
+            });
+
+            tasks.Add(task);
+        }
+
+        await Task.WhenAll(tasks);
+
+        return infos;
+    }
+
+    class IndexInfo
+    {
+        public string Title { get; set; }
+
+        public string Url { get; set; }
+
+        public int ContentLength { get; set; }
+    }
+}
+
+
