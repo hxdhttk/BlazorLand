@@ -12,6 +12,7 @@ pool:
 steps:
 - task: DotNetCoreCLI@2
   inputs:
+    version: '3.0.100-preview5-011568'
     command: 'build'
     projects: '.'
   displayName: "Build the project."
