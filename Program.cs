@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Blazor.Hosting;
 
-namespace AzPipelineIntergrationTest
+namespace BlazorLand
 {
     public class Program
     {
