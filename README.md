@@ -1,3 +1,3 @@
-# AzPipelineIntergrationTest
+# BlazorLand
 
-Add Blazor test code
+Blazor test code
