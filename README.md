@@ -1,3 +1,3 @@
 # BlazorLand
 
-Blazor test code
+Blazor test code with some pages.
